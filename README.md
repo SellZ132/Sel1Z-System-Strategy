@@ -1,7 +1,7 @@
 # 🛡️ Sel1Z SYSTEM STRATEGY v2.4
 **Ultimate Windows Optimization Script for Gaming and System Integrity.**
 
-![Sel1Z Logo](https://img2.pic.in.th/s-3.png)
+![Sel1Z Logo](https://i.postimg.cc/4NjZjPSK/s-(5).png)
 
 ## 🚀 Key Features
 - **Advanced Junk Elimination:** Purges deep-seated system debris.
