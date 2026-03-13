@@ -2,6 +2,22 @@ import os
 import discord
 from discord.ext import commands
 from discord import ui
+from flask import Flask        # เพิ่มบรรทัดนี้
+from threading import Thread   # เพิ่มบรรทัดนี้
+
+# --- ส่วนของ Flask สำหรับหลอก Render ---
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Sel1Z SYSTEM is Online"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
 
 # คำเตือน: Token นี้เป็นข้อมูลสำคัญ ห้ามเผยแพร่สู่สาธารณะนะครับ
 TOKEN = os.getenv('DISCORD_TOKEN')
