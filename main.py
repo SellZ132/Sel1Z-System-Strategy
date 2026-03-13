@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import ui
 
 # คำเตือน: Token นี้เป็นข้อมูลสำคัญ ห้ามเผยแพร่สู่สาธารณะนะครับ
-TOKEN = 'TOKEN'
+TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
