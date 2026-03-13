@@ -14,7 +14,7 @@ def home():
 
 def run_flask():
     # Render จะส่ง Port มาให้ทาง Environment Variable ชื่อ 'PORT'
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
 def keep_alive():
