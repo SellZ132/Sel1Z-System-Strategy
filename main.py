@@ -5,18 +5,20 @@ from discord import ui
 from flask import Flask        # เพิ่มบรรทัดนี้
 from threading import Thread   # เพิ่มบรรทัดนี้
 
-# --- ส่วนของ Flask สำหรับหลอก Render ---
+# --- ส่วนหลอก Render ให้หา Port เจอ ---
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "Sel1Z SYSTEM is Online"
+    return "Sel1Z Bot is Online!"
 
-def run():
-    app.run(host='0.0.0.0', port=8080)
+def run_flask():
+    # Render จะส่ง Port มาให้ทาง Environment Variable ชื่อ 'PORT'
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
 
 def keep_alive():
-    t = Thread(target=run)
+    t = Thread(target=run_flask)
     t.start()
 
 # คำเตือน: Token นี้เป็นข้อมูลสำคัญ ห้ามเผยแพร่สู่สาธารณะนะครับ
