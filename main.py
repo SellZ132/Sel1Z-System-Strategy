@@ -55,7 +55,7 @@ bot = commands.Bot(
 RESPONSES_DATA = {
 
             "th": (
-                "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.4 ]**\n\n"
+                "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.6 ]**\n\n"
                 "**🚀 รายละเอียดการปรับแต่งระบบ:**\n"
                 "• **การจัดการไฟล์ขยะเชิงลึก:** ทำความสะอาดไฟล์ตกค้างจากระบบปฏิบัติการและแคชของ Windows Update เพื่อเพิ่มพื้นที่ว่างและลดภาระการทำงานของ Disk\n"
                 "• **การตรวจสอบเสถียรภาพ:** วิเคราะห์และซ่อมแซมความผิดปกติของไฟล์ระบบโดยรวม เพื่อป้องกันปัญหาเครื่องค้างหรือ Blue Screen ในระยะยาว\n"
@@ -63,11 +63,11 @@ RESPONSES_DATA = {
                 "• **Gaming Mode (Optimization):** ยุติการทำงานของเซอร์วิสเบื้องหลังที่ไม่จำเป็นชั่วคราว เพื่อดึงทรัพยากร CPU และ RAM มาใช้กับตัวเกมอย่างเต็มประสิทธิภาพ\n\n"
                 "⚠️ **ข้อควรระวังสำคัญ:**\n"
                 "1. อินเทอร์เน็ตจะตัดการเชื่อมต่อและรีเซ็ตใหม่ครู่หนึ่ง\n"
-                "2. ระบบการพิมพ์ (Printer) จะถูกปิดใช้งานจนกว่าจะรีสตาร์ทเครื่อง\n"
+                "2. ระบบการพิมพ์ (Printer) จะถูกปิดใช้งานจนกว่าจะรีสตาร์ทเครื่อง (เปิดกลับได้ด้วยไฟล์ Recover)\n"
                 "3. **ต้องรันด้วยสิทธิ์ Administrator เท่านั้นเพื่อให้ระบบทำงานได้สมบูรณ์**"
             ),
             "en": (
-                "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.4 ]**\n\n"
+                "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.6 ]**\n\n"
                 "**🚀 Optimization Overview:**\n"
                 "• **Advanced Junk Elimination:** Purges deep-seated system debris and Windows Update cache to maximize storage efficiency and disk response time.\n"
                 "• **System Integrity Check:** Scans and restores core system components to ensure maximum OS stability and prevent unexpected crashes.\n"
@@ -75,11 +75,11 @@ RESPONSES_DATA = {
                 "• **Gaming Mode Engagement:** Temporarily suspends non-essential background telemetry and services, prioritizing CPU/RAM for the active gaming environment.\n\n"
                 "⚠️ **Crucial Warnings:**\n"
                 "1. Your network connection will reset briefly during the process.\n"
-                "2. Printing services will be disabled until the next system reboot.\n"
+                "2. Printing services will be disabled until the next system reboot. (Can be restored using the Recover file)\n"
                 "3. **Run as Administrator is mandatory for full execution.**"
             ),
             "de": (
-                "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.4 ]**\n\n"
+                "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.6 ]**\n\n"
                 "**🚀 Optimierungsdetails:**\n"
                 "• **Tiefenreinigung:** Entfernt tief im System liegende Dateireste und den Windows Update-Cache für maximale Effizienz.\n"
                 "• **Systemstabilität:** Analysiert und repariert wichtige Systemkomponenten, um Betriebssystemfehler zu vermeiden.\n"
@@ -87,11 +87,11 @@ RESPONSES_DATA = {
                 "• **Gaming-Modus:** Deaktiviert vorübergehend unnötige Hintergrunddienste, um CPU und RAM für Spiele zu maximieren.\n\n"
                 "⚠️ **Wichtige Hinweise:**\n"
                 "1. Die Internetverbindung wird kurzzeitig unterbrochen.\n"
-                "2. Druckdienste sind bis zum nächsten Neustart deaktiviert.\n"
+                "2. Druckdienste sind bis zum nächsten Neustart deaktiviert. (Wiederherstellbar mit der Recover-Datei)\n"
                 "3. **Muss als Administrator ausgeführt werden.**"
             ),
             "ru": (
-                "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.4 ]**\n\n"
+                "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.6 ]**\n\n"
                 "**🚀 Обзор оптимизации:**\n"
                 "• **Глубокая очистка:** Удаление системного мусора и кэша обновлений для повышения быстродействия диска.\n"
                 "• **Целостность системы:** Сканирование и восстановление поврежденных файлов для обеспечения стабильности ОС.\n"
@@ -99,11 +99,11 @@ RESPONSES_DATA = {
                 "• **Игровой режим:** Приостановка фоновых служб для выделения максимума ресурсов CPU и RAM на игру.\n\n"
                 "⚠️ **Важные предупреждения:**\n"
                 "1. Интернет-соединение будет временно разорвано.\n"
-                "2. Службы печати будут отключены до перезагрузки системы.\n"
+                "2. Службы печати будут отключены до перезагрузки системы. (Можно восстановить с помощью файла Recover)\n"
                 "3. **Запуск от имени администратора обязателен.**"
             ),
             "jp": (
-                "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.4 ]**\n\n"
+                "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.6 ]**\n\n"
                 "**🚀 最適化の詳細:**\n"
                 "• **高度なジャンク削除:** システムの残骸とWindows Updateキャッシュを徹底的にクリーンアップし、レスポンスを向上させます。\n"
                 "• **システム整合性チェック:** OSの安定性を確保し、予期しないクラッシュを防ぐためにシステムファイルを修復します。\n"
@@ -111,7 +111,7 @@ RESPONSES_DATA = {
                 "• **ゲームモード:** 不要なバックグラウンドサービスを一時的に停止し、CPUとRAMをゲームに優先的に割り当てます。\n\n"
                 "⚠️ **重要な警告:**\n"
                 "1. プロセス中にネットワーク接続が一時的に切断されます。\n"
-                "2. 再起動するまでプリンター機能は無効になります。\n"
+                "2. 再起動するまでプリンター機能は無効になります。(Recoverファイルで復元可能) \n"
                 "3. **完全に実行するには「管理者として実行」が必須です。**"
             )
         }
@@ -251,7 +251,7 @@ async def setup(ctx):
     embed = discord.Embed(
         title="[ Sel1Z ] SYSTEM STRATEGY",
         description=f"""
-    🟢 **Stable Release | Version 2.4**
+    🟢 **Stable Release | Version 2.6**
 
     👥 **Users:** `{downloads}` downloads
     """,
