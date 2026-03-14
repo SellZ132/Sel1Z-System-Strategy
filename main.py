@@ -123,9 +123,16 @@ class DownloadView(ui.View):
         super().__init__(timeout=None)
 
         self.add_item(ui.Button(
-            label="Download .bat",
-            url="https://github.com/SellZ132/Sel1Z-System-Strategy/releases/download/v2.4/Sel1Z_Optimizer.bat",
-            emoji="📥",
+            label="Download Optimizer",
+            url="https://github.com/SellZ132/Sel1Z-System-Strategy/releases/download/v2.6/Sel1Z_Optimizer_v2.6.exe",
+            emoji="🎹",
+            style=discord.ButtonStyle.link
+        ))
+
+        self.add_item(ui.Button(
+            label="Download Recover",
+            url="https://github.com/SellZ132/Sel1Z-System-Strategy/releases/download/v2.6/Sel1Z_Restorer_v2.6.exe",
+            emoji="🧠",
             style=discord.ButtonStyle.link
         ))
 
