@@ -110,7 +110,7 @@ class DownloadView(ui.View):
 
         self.add_item(ui.Button(
             label="Download .bat",
-            url="https://github.com/SellZ132/Sel1Z_System-Strategy/releases/download/v2.4/Sel1Z_Optimizer.bat",
+            url="https://github.com/SellZ132/Sel1Z-System-Strategy/releases/download/v2.4/Sel1Z_Optimizer.bat",
             emoji="📥",
             style=discord.ButtonStyle.link
         ))
