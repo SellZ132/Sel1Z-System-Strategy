@@ -1,3 +1,4 @@
+import requests
 import os
 import discord
 from discord.ext import commands, tasks
@@ -5,6 +6,19 @@ from discord import ui
 from flask import Flask
 from threading import Thread
 import datetime
+
+def get_download_count():
+    try:
+        url = "https://api.github.com/repos/SellZ132/Sel1Z-System-Strategy/releases/latest"
+        data = requests.get(url).json()
+
+        total = 0
+        for asset in data["assets"]:
+            total += asset["download_count"]
+
+        return total
+    except:
+        return "Unknown"
 
 # ---------------- WEB SERVER (Railway Status) ----------------
 app = Flask(__name__)
@@ -225,8 +239,15 @@ async def on_ready():
 @bot.command()
 async def setup(ctx):
 
+    downloads = get_download_count()
+
     embed = discord.Embed(
         title="[ Sel1Z ] SYSTEM STRATEGY",
+        description=f"""
+    🟢 **Stable Release | Version 2.4**
+
+    👥 **Users:** `{downloads}` downloads
+    """,
         color=0x00ffff
     )
 
