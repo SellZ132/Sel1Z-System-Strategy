@@ -1,4 +1,3 @@
-import requests
 import os
 import discord
 from discord.ext import commands, tasks
@@ -6,6 +5,7 @@ from discord import ui
 from flask import Flask
 from threading import Thread
 import datetime
+import requests
 
 def get_download_count():
     try:
