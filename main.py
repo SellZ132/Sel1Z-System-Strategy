@@ -1,19 +1,18 @@
 import os
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import ui
-from flask import Flask        # เพิ่มบรรทัดนี้
-from threading import Thread   # เพิ่มบรรทัดนี้
+from flask import Flask
+from threading import Thread
+import datetime
 
-# --- ส่วนหลอก Render ให้หา Port เจอ ---
+# --- ส่วนระบบหลอก Port (คงไว้เพื่อให้ Railway แสดงสถานะ Web) ---
 app = Flask('')
-
 @app.route('/')
 def home():
-    return "Sel1Z Bot is Online!"
+    return "Sel1Z Bot is Online & Monitoring!"
 
 def run_flask():
-    # Render จะส่ง Port มาให้ทาง Environment Variable ชื่อ 'PORT'
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
@@ -21,34 +20,36 @@ def keep_alive():
     t = Thread(target=run_flask)
     t.start()
 
-# คำเตือน: Token นี้เป็นข้อมูลสำคัญ ห้ามเผยแพร่สู่สาธารณะนะครับ
 TOKEN = os.getenv('DISCORD_TOKEN')
 
+# --- ตั้งค่าสิทธิ์บอท ---
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# --- ส่วนของปุ่มดาวน์โหลดและ GitHub ---
+# --- 1. Persistent Download View (ปุ่มอมตะ) ---
+# เราต้องตั้ง timeout=None และใส่ custom_id เพื่อให้บอทจำปุ่มได้ตลอดไป
 class DownloadView(ui.View):
     def __init__(self):
-        super().__init__()
+        super().__init__(timeout=None)
         
-        # ปุ่มที่ 1: สำหรับดาวน์โหลดไฟล์โดยตรง (Direct Link จาก Release)
         self.add_item(ui.Button(
             label="Download .bat", 
-            url="https://github.com/SellZ132/Sel1Z-System-Strategy/releases/download/v2.4/Sel1Z_Optimizer.bat", 
+            url="https://github.com/SellZ132/Sel1Z_System-Strategy/releases/download/v2.4/Sel1Z_Optimizer.bat", 
             emoji="📥",
-            style=discord.ButtonStyle.link
+            style=discord.ButtonStyle.link,
+            custom_id="persistent_download_btn" # ID สำคัญสำหรับการจำ
         ))
         
-        # ปุ่มที่ 2: สำหรับไปที่หน้า GitHub Repository (Home Page)
         self.add_item(ui.Button(
             label="GitHub Repository", 
             url="https://github.com/SellZ132/Sel1Z-System-Strategy", 
             emoji="⭐",
-            style=discord.ButtonStyle.link
+            style=discord.ButtonStyle.link,
+            custom_id="persistent_github_btn"
         ))
 
+# --- 2. Persistent Select Menu (เมนูอมตะ) ---
 class LanguageSelect(ui.Select):
     def __init__(self):
         options = [
@@ -58,7 +59,12 @@ class LanguageSelect(ui.Select):
             discord.SelectOption(label="Russian", emoji="🇷🇺", value="ru"),
             discord.SelectOption(label="Japanese", emoji="🇯🇵", value="jp"),
         ]
-        super().__init__(placeholder="Select Language / เลือกภาษา...", options=options)
+        # ต้องใส่ custom_id ที่ไม่ซ้ำใคร
+        super().__init__(
+            placeholder="Select Language / เลือกภาษา...", 
+            options=options, 
+            custom_id="persistent_lang_select"
+        )
 
     async def callback(self, interaction: discord.Interaction):
         # ข้อมูลแบบละเอียด เน้นผลลัพธ์ ไม่เน้นคำสั่ง
@@ -126,25 +132,56 @@ class LanguageSelect(ui.Select):
         }
         
         selected = self.values[0]
-        embed = discord.Embed(description=responses[selected], color=0x990000) # สีแดงเลือด
+        # หากไม่มีข้อมูลภาษาใน response ให้ใช้ภาษาอังกฤษเป็นพื้นฐาน
+        desc = responses.get(selected, responses["en"])
+        
+        embed = discord.Embed(description=desc, color=0x990000)
         embed.set_footer(text="Developed by Sel1Z")
-        # ส่งข้อความแบบ Ephemeral พร้อมปุ่มดาวน์โหลด
+        
+        # ส่ง DownloadView() ที่เราสร้างไว้ข้างต้น
         await interaction.response.send_message(embed=embed, view=DownloadView(), ephemeral=True)
 
 class LanguageView(ui.View):
     def __init__(self):
-        super().__init__()
+        super().__init__(timeout=None) # ห้ามมีวันหมดอายุ
         self.add_item(LanguageSelect())
+
+# --- 3. Heartbeat Dashboard (ระบบไฟสถานะหน้าห้อง) ---
+@tasks.loop(minutes=30) # ส่ง Log ทุกๆ 30 นาที
+async def heartbeat():
+    # เปลี่ยน ID แชนแนลที่ต้องการให้บอทส่ง Log (เอามาจาก Discord ของคุณ)
+    LOG_CHANNEL_ID = 123456789012345678  # <--- ใส่ ID ห้อง Log ของคุณตรงนี้
+    channel = bot.get_channel(LOG_CHANNEL_ID)
+    if channel:
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        embed = discord.Embed(
+            title="🛰️ SYSTEM HEARTBEAT",
+            description=f"**Status:** `ONLINE` (Normal)\n**Last Sync:** `{now}`\n**Location:** `Railway Container`\n**Network:** `Connected`",
+            color=0x00ff00 # สีเขียวแสดงว่าปกติ
+        )
+        embed.set_footer(text="Sel1Z Data Center Monitoring")
+        await channel.send(embed=embed)
 
 @bot.event
 async def on_ready():
+    # สำคัญที่สุด: ลงทะเบียน View ให้บอทรู้จักตลอดเวลาแม้เพิ่งจะ Restart
+    bot.add_view(LanguageView())
+    bot.add_view(DownloadView())
+    
+    # เริ่มระบบ Heartbeat
+    if not heartbeat.is_running():
+        heartbeat.start()
+        
     print(f'>>> Sel1Z Bot is Online as {bot.user}')
+    print(f'>>> Persistent Views Registered Successfully.')
 
 @bot.command()
 async def setup(ctx):
     embed = discord.Embed(title="[ Sel1Z ] SYSTEM STRATEGY", color=0x00ffff)
-    embed.set_image(url="https://i.postimg.cc/4NjZjPSK/s-(5).png") # รูปโลโก้ใหม่ที่คุณส่งมา
+    embed.set_image(url="https://i.postimg.cc/4NjZjPSK/s-(5).png")
     embed.set_footer(text="Choose your language below to see the details.")
     await ctx.send(embed=embed, view=LanguageView())
 
+# รันระบบ Web และ Bot
+keep_alive()
 bot.run(TOKEN)
