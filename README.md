@@ -15,5 +15,9 @@
 - **Must be executed as an Administrator.**
 
 ## 📥 Installation
-1. Download the `Sel1Z_Optimizer.bat` file.
+1. Download the `Sel1Z_Optimizer_v2.6.exe` file.
+2. Right-click and select **Run as Administrator**.
+
+## ✍ Recover
+1. Download the `Sel1Z_Restorer_v2.6.exe` file.
 2. Right-click and select **Run as Administrator**.
