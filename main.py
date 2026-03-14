@@ -49,23 +49,6 @@ class DownloadView(ui.View):
             custom_id="persistent_github_btn"
         ))
 
-# --- 2. Persistent Select Menu (เมนูอมตะ) ---
-class LanguageSelect(ui.Select):
-    def __init__(self):
-        options = [
-            discord.SelectOption(label="Thai", emoji="🇹🇭", value="th"),
-            discord.SelectOption(label="English", emoji="🇺🇸", value="en"),
-            discord.SelectOption(label="German", emoji="🇩🇪", value="de"),
-            discord.SelectOption(label="Russian", emoji="🇷🇺", value="ru"),
-            discord.SelectOption(label="Japanese", emoji="🇯🇵", value="jp"),
-        ]
-        # ต้องใส่ custom_id ที่ไม่ซ้ำใคร
-        super().__init__(
-            placeholder="Select Language / เลือกภาษา...", 
-            options=options, 
-            custom_id="persistent_lang_select"
-        )
-
     async def callback(self, interaction: discord.Interaction):
         # ข้อมูลแบบละเอียด เน้นผลลัพธ์ ไม่เน้นคำสั่ง
         responses = {
@@ -130,16 +113,35 @@ class LanguageSelect(ui.Select):
                 "3. **完全に実行するには「管理者として実行」が必須です。**"
             )
         }
+
+class LanguageSelect(ui.Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(label="Thai", emoji="🇹🇭", value="th"),
+            discord.SelectOption(label="English", emoji="🇺🇸", value="en"),
+            discord.SelectOption(label="German", emoji="🇩🇪", value="de"),
+            discord.SelectOption(label="Russian", emoji="🇷🇺", value="ru"),
+            discord.SelectOption(label="Japanese", emoji="🇯🇵", value="jp"),
+        ]
+        # ต้องใส่ custom_id ที่ไม่ซ้ำใคร
+        super().__init__(
+            placeholder="Select Language / เลือกภาษา...", 
+            options=options, 
+            custom_id="persistent_lang_select"
+        )
+        
+async def callback(self, interaction: discord.Interaction):
+        # --- [จุดสำคัญ] สั่ง Defer เพื่อป้องกัน Interaction Failed ---
+        await interaction.response.defer(ephemeral=True) 
         
         selected = self.values[0]
-        # หากไม่มีข้อมูลภาษาใน response ให้ใช้ภาษาอังกฤษเป็นพื้นฐาน
-        desc = responses.get(selected, responses["en"])
+        desc = RESPONSES_DATA.get(selected, RESPONSES_DATA["en"])
         
         embed = discord.Embed(description=desc, color=0x990000)
         embed.set_footer(text="Developed by Sel1Z")
         
-        # ส่ง DownloadView() ที่เราสร้างไว้ข้างต้น
-        await interaction.response.send_message(embed=embed, view=DownloadView(), ephemeral=True)
+        # --- ใช้ followup แทน response เพราะเรา defer ไปแล้ว ---
+        await interaction.followup.send(embed=embed, view=DownloadView(), ephemeral=True)
 
 class LanguageView(ui.View):
     def __init__(self):
