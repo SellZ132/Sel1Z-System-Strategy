@@ -150,7 +150,7 @@ class LanguageView(ui.View):
 @tasks.loop(minutes=30) # ส่ง Log ทุกๆ 30 นาที
 async def heartbeat():
     # เปลี่ยน ID แชนแนลที่ต้องการให้บอทส่ง Log (เอามาจาก Discord ของคุณ)
-    LOG_CHANNEL_ID = 123456789012345678  # <--- ใส่ ID ห้อง Log ของคุณตรงนี้
+    LOG_CHANNEL_ID = 1482018260969979965  # <--- ใส่ ID ห้อง Log ของคุณตรงนี้
     channel = bot.get_channel(LOG_CHANNEL_ID)
     if channel:
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
