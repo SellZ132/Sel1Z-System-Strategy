@@ -6,50 +6,40 @@ from flask import Flask
 from threading import Thread
 import datetime
 
-# --- ส่วนระบบหลอก Port (คงไว้เพื่อให้ Railway แสดงสถานะ Web) ---
-app = Flask('')
-@app.route('/')
+# ---------------- WEB SERVER (Railway Status) ----------------
+app = Flask(__name__)
+
+@app.route("/")
 def home():
     return "Sel1Z Bot is Online & Monitoring!"
 
-def run_flask():
+def run_web():
     port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="0.0.0.0", port=port)
 
 def keep_alive():
-    t = Thread(target=run_flask)
+    t = Thread(target=run_web)
+    t.daemon = True
     t.start()
 
-TOKEN = os.getenv('DISCORD_TOKEN')
+# ---------------- TOKEN ----------------
+TOKEN = os.getenv("DISCORD_TOKEN")
 
-# --- ตั้งค่าสิทธิ์บอท ---
+if not TOKEN:
+    raise ValueError("DISCORD_TOKEN not found in environment variables")
+
+# ---------------- BOT SETUP ----------------
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix="!", intents=intents)
 
-# --- 1. Persistent Download View (ปุ่มอมตะ) ---
-# เราต้องตั้ง timeout=None และใส่ custom_id เพื่อให้บอทจำปุ่มได้ตลอดไป
-class DownloadView(ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
-        
-        self.add_item(ui.Button(
-            label="Download .bat", 
-            url="https://github.com/SellZ132/Sel1Z_System-Strategy/releases/download/v2.4/Sel1Z_Optimizer.bat", 
-            emoji="📥",
-            style=discord.ButtonStyle.link,
-        ))
-        
-        self.add_item(ui.Button(
-            label="GitHub Repository", 
-            url="https://github.com/SellZ132/Sel1Z-System-Strategy", 
-            emoji="⭐",
-            style=discord.ButtonStyle.link,
-        ))
+bot = commands.Bot(
+    command_prefix="!",
+    intents=intents
+)
 
-    async def callback(self, interaction: discord.Interaction):
-        # ข้อมูลแบบละเอียด เน้นผลลัพธ์ ไม่เน้นคำสั่ง
-        responses = {
+# ---------------- RESPONSE DATABASE ----------------
+RESPONSES_DATA = {
+
             "th": (
                 "🛡️ **[ Sel1Z SYSTEM STRATEGY v2.4 ]**\n\n"
                 "**🚀 รายละเอียดการปรับแต่งระบบ:**\n"
@@ -112,76 +102,159 @@ class DownloadView(ui.View):
             )
         }
 
-class LanguageSelect(ui.Select):
+# ---------------- DOWNLOAD BUTTONS ----------------
+class DownloadView(ui.View):
+
     def __init__(self):
+        super().__init__(timeout=None)
+
+        self.add_item(ui.Button(
+            label="Download .bat",
+            url="https://github.com/SellZ132/Sel1Z_System-Strategy/releases/download/v2.4/Sel1Z_Optimizer.bat",
+            emoji="📥",
+            style=discord.ButtonStyle.link
+        ))
+
+        self.add_item(ui.Button(
+            label="GitHub Repository",
+            url="https://github.com/SellZ132/Sel1Z-System-Strategy",
+            emoji="⭐",
+            style=discord.ButtonStyle.link
+        ))
+
+# ---------------- LANGUAGE SELECT ----------------
+class LanguageSelect(ui.Select):
+
+    def __init__(self):
+
         options = [
+
             discord.SelectOption(label="Thai", emoji="🇹🇭", value="th"),
             discord.SelectOption(label="English", emoji="🇺🇸", value="en"),
             discord.SelectOption(label="German", emoji="🇩🇪", value="de"),
             discord.SelectOption(label="Russian", emoji="🇷🇺", value="ru"),
             discord.SelectOption(label="Japanese", emoji="🇯🇵", value="jp"),
-        ]
-        # ต้องใส่ custom_id ที่ไม่ซ้ำใคร
-        super().__init__(
-            placeholder="Select Language / เลือกภาษา...", 
-            options=options, 
-            custom_id="persistent_lang_select"
-        )
-        
-async def callback(self, interaction: discord.Interaction):
-        # --- [จุดสำคัญ] สั่ง Defer เพื่อป้องกัน Interaction Failed ---
-        await interaction.response.defer(ephemeral=True) 
-        
-        selected = self.values[0]
-        desc = RESPONSES_DATA.get(selected, RESPONSES_DATA["en"])
-        
-        embed = discord.Embed(description=desc, color=0x990000)
-        embed.set_footer(text="Developed by Sel1Z")
-        
-        # --- ใช้ followup แทน response เพราะเรา defer ไปแล้ว ---
-        await interaction.followup.send(embed=embed, view=DownloadView(), ephemeral=True)
 
+        ]
+
+        super().__init__(
+            placeholder="Select Language / เลือกภาษา...",
+            options=options,
+            custom_id="language_select"
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+
+        selected = self.values[0]
+        text = RESPONSES_DATA.get(selected, RESPONSES_DATA["en"])
+
+        embed = discord.Embed(
+            description=text,
+            color=0x990000
+        )
+
+        embed.set_footer(text="Developed by Sel1Z")
+
+        await interaction.response.send_message(
+            embed=embed,
+            view=DownloadView(),
+            ephemeral=True
+        )
+
+# ---------------- LANGUAGE VIEW ----------------
 class LanguageView(ui.View):
+
     def __init__(self):
-        super().__init__(timeout=None) # ห้ามมีวันหมดอายุ
+        super().__init__(timeout=None)
         self.add_item(LanguageSelect())
 
-# --- 3. Heartbeat Dashboard (ระบบไฟสถานะหน้าห้อง) ---
-@tasks.loop(minutes=30) # ส่ง Log ทุกๆ 30 นาที
-async def heartbeat():
-    # เปลี่ยน ID แชนแนลที่ต้องการให้บอทส่ง Log (เอามาจาก Discord ของคุณ)
-    LOG_CHANNEL_ID = 1482018260969979965  # <--- ใส่ ID ห้อง Log ของคุณตรงนี้
-    channel = bot.get_channel(LOG_CHANNEL_ID)
-    if channel:
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        embed = discord.Embed(
-            title="🛰️ SYSTEM HEARTBEAT",
-            description=f"**Status:** `ONLINE` (Normal)\n**Last Sync:** `{now}`\n**Location:** `Railway Container`\n**Network:** `Connected`",
-            color=0x00ff00 # สีเขียวแสดงว่าปกติ
-        )
-        embed.set_footer(text="Sel1Z Data Center Monitoring")
-        await channel.send(embed=embed)
+# ---------------- HEARTBEAT SYSTEM ----------------
+OWNER_ID = 1039199055923904562
+heartbeat_message = None
 
+@tasks.loop(minutes=30)
+async def heartbeat():
+
+    global heartbeat_message
+
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    embed = discord.Embed(
+        title="🛰️ SYSTEM HEARTBEAT",
+        description=f"""
+**Status:** `ONLINE`
+**Last Sync:** `{now}`
+**Location:** `Railway Container`
+**Network:** `Connected`
+""",
+        color=0x00ff00
+    )
+
+    embed.set_footer(text="Sel1Z Data Center Monitoring")
+
+    try:
+        user = await bot.fetch_user(OWNER_ID)
+
+        if heartbeat_message:
+            await heartbeat_message.edit(embed=embed)
+        else:
+            heartbeat_message = await user.send(embed=embed)
+
+    except Exception as e:
+        print("Heartbeat Error:", e)
+
+# ---------------- BOT READY ----------------
 @bot.event
 async def on_ready():
-    # สำคัญที่สุด: ลงทะเบียน View ให้บอทรู้จักตลอดเวลาแม้เพิ่งจะ Restart
+
     bot.add_view(LanguageView())
     bot.add_view(DownloadView())
-    
-    # เริ่มระบบ Heartbeat
+
     if not heartbeat.is_running():
         heartbeat.start()
-        
-    print(f'>>> Sel1Z Bot is Online as {bot.user}')
-    print(f'>>> Persistent Views Registered Successfully.')
 
+    try:
+        synced = await bot.tree.sync()
+        print(f"Slash commands synced: {len(synced)}")
+    except:
+        pass
+
+    print(f"Bot Online: {bot.user}")
+
+# ---------------- COMMANDS ----------------
 @bot.command()
 async def setup(ctx):
-    embed = discord.Embed(title="[ Sel1Z ] SYSTEM STRATEGY", color=0x00ffff)
-    embed.set_image(url="https://i.postimg.cc/4NjZjPSK/s-(5).png")
-    embed.set_footer(text="Choose your language below to see the details.")
-    await ctx.send(embed=embed, view=LanguageView())
 
-# รันระบบ Web และ Bot
+    embed = discord.Embed(
+        title="[ Sel1Z ] SYSTEM STRATEGY",
+        color=0x00ffff
+    )
+
+    embed.set_image(url="https://i.postimg.cc/4NjZjPSK/s-(5).png")
+
+    embed.set_footer(text="Choose your language")
+
+    await ctx.send(
+        embed=embed,
+        view=LanguageView()
+    )
+
+# ---------------- SLASH COMMAND ----------------
+@bot.tree.command(name="setup", description="Send Sel1Z System panel")
+async def slash_setup(interaction: discord.Interaction):
+
+    embed = discord.Embed(
+        title="[ Sel1Z ] SYSTEM STRATEGY",
+        color=0x00ffff
+    )
+
+    embed.set_image(url="https://i.postimg.cc/4NjZjPSK/s-(5).png")
+
+    await interaction.response.send_message(
+        embed=embed,
+        view=LanguageView()
+    )
+
+# ---------------- START BOT ----------------
 keep_alive()
 bot.run(TOKEN)
