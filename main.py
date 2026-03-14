@@ -38,7 +38,6 @@ class DownloadView(ui.View):
             url="https://github.com/SellZ132/Sel1Z_System-Strategy/releases/download/v2.4/Sel1Z_Optimizer.bat", 
             emoji="📥",
             style=discord.ButtonStyle.link,
-            custom_id="persistent_download_btn" # ID สำคัญสำหรับการจำ
         ))
         
         self.add_item(ui.Button(
@@ -46,7 +45,6 @@ class DownloadView(ui.View):
             url="https://github.com/SellZ132/Sel1Z-System-Strategy", 
             emoji="⭐",
             style=discord.ButtonStyle.link,
-            custom_id="persistent_github_btn"
         ))
 
     async def callback(self, interaction: discord.Interaction):
